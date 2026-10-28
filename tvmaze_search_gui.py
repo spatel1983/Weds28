@@ -16,14 +16,15 @@ for library_variable, library_directory in (
 import tkinter as tk
 from tkinter import ttk
 
+from app_config import WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH, WINDOW_TITLE
 from tvmaze_search import search_show
 
 
 class TVMazeSearchApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("TV Show Search")
-        self.root.minsize(420, 320)
+        self.root.title(WINDOW_TITLE)
+        self.root.minsize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
 
         self.results = queue.Queue()
 

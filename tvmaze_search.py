@@ -3,14 +3,15 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-
-TVMAZE_SEARCH_URL = "https://api.tvmaze.com/search/shows"
+from app_config import REQUEST_TIMEOUT_SECONDS, TVMAZE_SEARCH_URL
 
 
 def search_show(title):
     query = urlencode({"q": title})
     try:
-        with urlopen(f"{TVMAZE_SEARCH_URL}?{query}", timeout=10) as response:
+        with urlopen(
+            f"{TVMAZE_SEARCH_URL}?{query}", timeout=REQUEST_TIMEOUT_SECONDS
+        ) as response:
             results = json.load(response)
     except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as error:
         raise RuntimeError(f"Could not retrieve show information: {error}") from error
