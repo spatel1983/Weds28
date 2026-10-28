@@ -1,0 +1,88 @@
+# TV Show Search
+
+A small Python application that searches the [TVMaze](https://www.tvmaze.com/)
+database for a television show and displays basic details. It includes both a
+graphical interface and a command-line version.
+
+## Features
+
+- Search TVMaze by show title.
+- Display the first matching show's name, network or streaming service, genres,
+  premiere date, and end date.
+- Show a useful message when a title is blank, no results are found, or the
+  request fails.
+- Keep the graphical interface responsive while a search is in progress.
+- Configure the API endpoint, network timeout, and GUI dimensions in one file.
+
+## Requirements
+
+- Python 3 with Tkinter available for the graphical interface. Tkinter is
+  included with many standard Python installations; on some systems it may need
+  to be installed separately.
+- An internet connection to reach the TVMaze API.
+- No third-party Python packages are required.
+
+The command-line version does not require Tkinter.
+
+## Run the graphical interface
+
+From the project directory, run:
+
+```powershell
+python tvmaze_search_gui.py
+```
+
+Enter a show title and click **Search**, or press **Enter**. The result area
+shows the first matching show's details. If the search has no matches or the
+request fails, the interface displays that information instead.
+
+## Run the command-line version
+
+From the project directory, run:
+
+```powershell
+python tvmaze_search.py
+```
+
+Enter a title when prompted. The first matching show's details are printed in
+the terminal.
+
+## Configuration
+
+`config.ini` must be kept beside the Python files. It contains:
+
+```ini
+[api]
+search_url = https://api.tvmaze.com/search/shows
+timeout_seconds = 10
+
+[gui]
+title = TV Show Search
+min_width = 420
+min_height = 320
+```
+
+- `[api] search_url` sets the TVMaze show-search endpoint.
+- `[api] timeout_seconds` sets how long a search waits for a response.
+- `[gui] title` sets the window title.
+- `[gui] min_width` and `min_height` set the GUI's minimum size in pixels.
+
+Timeout and window dimensions must be positive numbers. Invalid or missing
+configuration is reported when the application starts.
+
+## Project files
+
+| File | Purpose |
+| --- | --- |
+| `tvmaze_search_gui.py` | Tkinter graphical application and result formatting |
+| `tvmaze_search.py` | TVMaze API search and command-line application |
+| `app_config.py` | Loads and validates settings from `config.ini` |
+| `config.ini` | Editable API and GUI settings |
+| `.gitignore` | Excludes the virtual environment, Python cache, and IDE files |
+
+## How searches work
+
+The application sends the entered title to the TVMaze show-search API and
+displays the first result returned. Network requests use the timeout from
+`config.ini`. Searches require internet access; API/network errors are shown to
+the user rather than treated as empty results.
