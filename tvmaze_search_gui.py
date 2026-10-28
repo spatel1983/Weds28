@@ -16,7 +16,7 @@ for library_variable, library_directory in (
 import tkinter as tk
 from tkinter import ttk
 
-from app_config import WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH, WINDOW_TITLE
+from app_config import MINIMUM_RATING, WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH, WINDOW_TITLE
 from tvmaze_search import search_show
 
 
@@ -89,8 +89,11 @@ class TVMazeSearchApp:
                 self.status.config(text="Search failed.")
                 self.show_output(error)
             elif show is None:
-                self.status.config(text="No results found.")
-                self.show_output(f"No shows found for {title!r}.")
+                self.status.config(text="No qualifying results.")
+                self.show_output(
+                    f"No shows found for {title!r} with a rating of "
+                    f"{MINIMUM_RATING:g} or higher."
+                )
             else:
                 self.status.config(text="Search complete.")
                 self.show_output(format_show(show))
@@ -108,9 +111,11 @@ def format_show(show):
     network = show.get("network") or show.get("webChannel")
     network_name = network.get("name", "Not listed") if network else "Not listed"
     genres = ", ".join(show.get("genres") or []) or "Not listed"
+    rating = (show.get("rating") or {}).get("average")
 
     return (
         f"Show: {show.get('name', 'Not listed')}\n"
+        f"Rating: {rating if rating is not None else 'Not listed'}\n"
         f"Network/streaming service: {network_name}\n"
         f"Genres: {genres}\n"
         f"Premiere date: {show.get('premiered') or 'Not listed'}\n"

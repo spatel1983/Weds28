@@ -1,3 +1,4 @@
+import math
 from configparser import ConfigParser, Error as ConfigError
 from pathlib import Path
 
@@ -16,6 +17,7 @@ if not loaded_files:
 try:
     TVMAZE_SEARCH_URL = _config.get("api", "search_url")
     REQUEST_TIMEOUT_SECONDS = _config.getint("api", "timeout_seconds")
+    MINIMUM_RATING = _config.getfloat("search", "minimum_rating")
     WINDOW_TITLE = _config.get("gui", "title")
     WINDOW_MIN_WIDTH = _config.getint("gui", "min_width")
     WINDOW_MIN_HEIGHT = _config.getint("gui", "min_height")
@@ -24,5 +26,7 @@ except (ConfigError, ValueError) as error:
 
 if not TVMAZE_SEARCH_URL.strip():
     raise ValueError(f"The API search URL is empty in {CONFIG_PATH}")
+if not math.isfinite(MINIMUM_RATING) or not 0 <= MINIMUM_RATING <= 10:
+    raise ValueError(f"Minimum rating must be between 0 and 10 in {CONFIG_PATH}")
 if REQUEST_TIMEOUT_SECONDS <= 0 or WINDOW_MIN_WIDTH <= 0 or WINDOW_MIN_HEIGHT <= 0:
     raise ValueError(f"Timeout and window dimensions must be positive in {CONFIG_PATH}")

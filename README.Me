@@ -7,8 +7,10 @@ graphical interface and a command-line version.
 ## Features
 
 - Search TVMaze by show title.
+- Show only matches with a rating at or above the configured minimum.
+- Explain when matching shows are found but their ratings are below the minimum.
 - Display the first matching show's name, network or streaming service, genres,
-  premiere date, and end date.
+  rating, premiere date, and end date.
 - Show a useful message when a title is blank, no results are found, or the
   request fails.
 - Keep the graphical interface responsive while a search is in progress.
@@ -56,6 +58,9 @@ the terminal.
 search_url = https://api.tvmaze.com/search/shows
 timeout_seconds = 10
 
+[search]
+minimum_rating = 6
+
 [gui]
 title = TV Show Search
 min_width = 420
@@ -64,6 +69,10 @@ min_height = 320
 
 - `[api] search_url` sets the TVMaze show-search endpoint.
 - `[api] timeout_seconds` sets how long a search waits for a response.
+- `[search] minimum_rating` sets the lowest TVMaze average rating a result must
+  have to be shown. The allowed range is 0 through 10; shows without a rating
+  are excluded. If matching shows have ratings but all fall below the minimum,
+  the app reports the rating and minimum instead of treating them as no results.
 - `[gui] title` sets the window title.
 - `[gui] min_width` and `min_height` set the GUI's minimum size in pixels.
 
@@ -83,6 +92,7 @@ configuration is reported when the application starts.
 ## How searches work
 
 The application sends the entered title to the TVMaze show-search API and
-displays the first result returned. Network requests use the timeout from
-`config.ini`. Searches require internet access; API/network errors are shown to
-the user rather than treated as empty results.
+displays the first result returned that meets the configured minimum rating.
+Network requests use the timeout from `config.ini`. Searches require internet
+access; API/network errors are shown to the user rather than treated as empty
+results.
