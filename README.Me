@@ -1,62 +1,60 @@
 # TV Show Search
 
-A small Python application that searches the [TVMaze](https://www.tvmaze.com/)
-database for a television show and displays basic details. It includes both a
-graphical interface and a command-line version.
-
-## Features
-
-- Search TVMaze by show title.
-- Show only matches with a rating at or above the configured minimum.
-- Explain when matching shows are found but their ratings are below the minimum.
-- Display the first matching show's name, network or streaming service, genres,
-  rating, premiere date, and end date.
-- Show a useful message when a title is blank, no results are found, or the
-  request fails.
-- Keep the graphical interface responsive while a search is in progress.
-- Configure the API endpoint, network timeout, and GUI dimensions in one file.
+A Python application that searches TVMaze for a television show and displays
+its network or streaming service, genres, rating, and premiere/end dates. It
+includes a graphical interface and a command-line version.
 
 ## Requirements
 
-- Python 3 with Tkinter available for the graphical interface. Tkinter is
-  included with many standard Python installations; on some systems it may need
-  to be installed separately.
-- An internet connection to reach the TVMaze API.
-- No third-party Python packages are required.
-
-The command-line version does not require Tkinter.
+- Python 3.
+- Tkinter for the graphical interface.
+- Internet access.
+- No API key or third-party Python packages are required. The app searches
+  TVMaze's public API using the endpoint configured in `config.ini`.
 
 ## Run the graphical interface
-
-From the project directory, run:
 
 ```powershell
 python tvmaze_search_gui.py
 ```
 
-Enter a show title and click **Search**, or press **Enter**. The result area
-shows the first matching show's details. If the search has no matches or the
-request fails, the interface displays that information instead.
+Choose **Search by title**, **Search by minimum rating**, or **Search by
+genre**. Rating searches use a threshold from 0 to 10. Rating and genre
+searches scan the full TVMaze show index (there are no direct endpoints for
+these filters), so they can take a while. Genre search lists the configured
+TVMaze genres in a dropdown and also applies the minimum rating from
+`config.ini`. Requests are paced to respect the API rate limit, and the status
+line shows scan progress.
 
 ## Run the command-line version
-
-From the project directory, run:
 
 ```powershell
 python tvmaze_search.py
 ```
 
-Enter a title when prompted. The first matching show's details are printed in
-the terminal.
+Choose title, minimum-rating, or genre search when prompted. Rating and genre
+searches scan the full TVMaze show index and report page progress; requests
+are paced to respect the API rate limit.
+
+The prior `movie_search.py` and `movie_search_gui.py` filenames remain as
+compatibility launchers for the TVMaze command-line and graphical apps.
+
+## Run unit tests
+
+```powershell
+python -m unittest discover -s tests -v
+```
 
 ## Configuration
 
-`config.ini` must be kept beside the Python files. It contains:
+Keep `config.ini` beside the Python files:
 
 ```ini
 [api]
 search_url = https://api.tvmaze.com/search/shows
+shows_url = https://api.tvmaze.com/shows
 timeout_seconds = 10
+genres = Action, Adult, Adventure, Anime, Children, Comedy, Crime, DIY, Drama, Espionage, Family, Fantasy, Food, History, Horror, Legal, Medical, Music, Mystery, Romance, Science-Fiction, Sports, Supernatural, Thriller, War, Western
 
 [search]
 minimum_rating = 6
@@ -68,31 +66,40 @@ min_height = 320
 ```
 
 - `[api] search_url` sets the TVMaze show-search endpoint.
-- `[api] timeout_seconds` sets how long a search waits for a response.
-- `[search] minimum_rating` sets the lowest TVMaze average rating a result must
-  have to be shown. The allowed range is 0 through 10; shows without a rating
-  are excluded. If matching shows have ratings but all fall below the minimum,
-  the app reports the rating and minimum instead of treating them as no results.
-- `[gui] title` sets the window title.
-- `[gui] min_width` and `min_height` set the GUI's minimum size in pixels.
+- `[api] shows_url` sets the paginated show-index endpoint used for rating
+  and genre searches.
+- `[api] genres` sets the available TVMaze genre dropdown choices.
+- `[api] genres` sets the genre choices available in the GUI dropdown.
+- `[api] timeout_seconds` sets the network timeout.
+- `[search] minimum_rating` sets the lowest TVMaze average rating to display
+  (0 through 10).
+- `[gui] title`, `min_width`, and `min_height` configure the window.
 
-Timeout and window dimensions must be positive numbers. Invalid or missing
-configuration is reported when the application starts.
+Timeout and window dimensions must be positive whole numbers. Invalid settings
+are reported at startup.
+
+## Logging and validation
+
+Structured JSON events are written to `logs/application.log`. Logs record
+startup, configuration loading, user searches, API requests and failures,
+validation failures, and unexpected exceptions.
+
+Reusable validation functions are in `validation.py`. Empty search terms,
+invalid ratings, and non-positive timeout or window dimensions are rejected.
+The graphical results box lists every search result meeting the configured
+minimum rating as one line with its rating, network or streaming service,
+genres, and premiere/end dates. Horizontal and vertical scrollbars let you
+view long rows and result lists; the mouse wheel scrolls vertically, and
+Shift+mouse wheel scrolls horizontally. Each new result set starts at the top
+and left of the text box.
 
 ## Project files
 
 | File | Purpose |
 | --- | --- |
-| `tvmaze_search_gui.py` | Tkinter graphical application and result formatting |
-| `tvmaze_search.py` | TVMaze API search and command-line application |
-| `app_config.py` | Loads and validates settings from `config.ini` |
-| `config.ini` | Editable API and GUI settings |
-| `.gitignore` | Excludes the virtual environment, Python cache, and IDE files |
-
-## How searches work
-
-The application sends the entered title to the TVMaze show-search API and
-displays the first result returned that meets the configured minimum rating.
-Network requests use the timeout from `config.ini`. Searches require internet
-access; API/network errors are shown to the user rather than treated as empty
-results.
+| `tvmaze_search_gui.py` | TVMaze graphical app and result formatting |
+| `tvmaze_search.py` | TVMaze API search and command-line app |
+| `app_config.py` | Loads and validates `config.ini` |
+| `validation.py` | Reusable input and configuration validation |
+| `logging_config.py` | Configures structured JSON logging |
+| `config.ini` | API endpoint, timeout, rating, and GUI settings |
